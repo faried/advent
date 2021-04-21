@@ -1,0 +1,121 @@
+#!/usr/bin/env python
+import string
+
+#helper
+def calculateManhattanDistance(coordinates_a, coordinates_b):
+	x = abs(coordinates_a[0] - coordinates_b[0]) 
+	y = abs(coordinates_a[1] - coordinates_b[1]) 
+	return x+y
+
+#helper
+def fill_grid(grid, size):
+	for x,row in enumerate(grid):
+		if row == '.':
+			row = ['.']*size
+			grid[x] = row
+	return grid
+
+#helper
+def print_grid(grid, size):
+	for x,row in enumerate(grid):
+		print(row)
+	return grid
+
+#helper
+def place_coordinates(input,grid,alphabets,size):
+	all_coordinates = []
+	for i,line in enumerate(input):
+		coordinates = line.split(', ')
+		x = int(coordinates[0])
+		y = int(coordinates[1])
+		all_coordinates.append([x,y])
+		if grid[x] == '.':
+			grid[x] = ['.']*size
+		grid[x][y] = alphabets[i]
+	return all_coordinates, grid
+
+def question_1(input):
+	size = 400
+	grid = ['.']*size
+	alphabets = string.ascii_lowercase + string.ascii_uppercase
+
+	# place coordinates
+	all_coordinates, grid = place_coordinates(input,grid,alphabets,size)
+
+	# fill grid with dots
+	grid = fill_grid(grid, size)
+
+	# fill grid with closest coordinates
+	useless_alphabets = []
+	for x,row in enumerate(grid):
+		for y,point in enumerate(row):
+			closest = ''
+			smallest_distance = 100000
+			point_coordinates = [x,y]
+			for i,puzzle_coordinates in enumerate(all_coordinates):
+				distance = calculateManhattanDistance(puzzle_coordinates,point_coordinates)
+				if distance < smallest_distance:
+					smallest_distance = distance
+					closest = alphabets[i]
+				elif distance == smallest_distance:
+					closest = '.'
+			if x == 0 or x == size-1 or y == 0 or y == size-1:
+				if closest not in useless_alphabets:
+					useless_alphabets.append(closest)
+			grid[x][y] = closest
+
+	max_area = 0
+	useful_alphabets = []
+	for alphabet in alphabets:
+		if alphabet not in useless_alphabets:
+			useful_alphabets.append(alphabet)
+
+	for alphabet in useful_alphabets:
+		area = 0
+		for row in grid:
+			area += row.count(alphabet)
+		if area > max_area:
+			max_area = area
+
+	return max_area
+
+
+
+def question_2(input):
+	size = 400
+	grid = ['.']*size
+	alphabets = string.ascii_lowercase + string.ascii_uppercase
+	all_coordinates = []
+	max_manhattan_allowed = 10000
+	
+	# place coordinates
+	all_coordinates, grid = place_coordinates(input,grid,alphabets,size)
+
+	# fill grid with dots
+	grid = fill_grid(grid, size)
+
+	# fill with hashes
+	region_size = 0
+	for x,row in enumerate(grid):
+		for y,point in enumerate(row):
+			total_distance = 0
+			point_coordinates = [x,y]
+			region_found = True
+			for i,puzzle_coordinates in enumerate(all_coordinates):
+				distance = calculateManhattanDistance(puzzle_coordinates,point_coordinates)
+				total_distance += distance
+				if total_distance >= max_manhattan_allowed:
+					region_found = False
+					break
+			if region_found:
+				region_size += 1
+
+	return region_size
+
+
+if __name__ == '__main__':
+	input = open("input.txt", "r")
+	answer = question_1(input)
+	print(answer)
+	answer = question_2(input)
+	print(answer)

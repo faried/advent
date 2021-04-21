@@ -1,0 +1,112 @@
+#!/usr/bin/env python
+
+from collections import Counter
+from os.path import join
+from string import ascii_lowercase, ascii_uppercase
+
+
+LETTERS = ascii_lowercase + ascii_uppercase
+
+
+def distance(p1, p2):
+    return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
+
+
+def calcarea(grid, minx, maxx, miny, maxy):
+    # check (minx, miny), (minx + 1, miny) ... (maxx, miny)
+    # anything we find there means the "owning" point has infinite area
+    # same for (minx, maxy) to (maxx, maxy), etc
+    infinites = set()
+
+    for y in (miny, maxy-1):
+        for x in range(minx, maxx):
+            already = grid.get((x, y))
+            if already and already[2] != -1 and already[2] not in infinites:
+                infinites.add(already[2])
+
+    for x in (minx, maxx-1):
+        for y in range(miny, maxy):
+            already = grid.get((x, y))
+            if already and already[2] != -1 and already[2] not in infinites:
+                infinites.add(already[2])
+
+    i = list(infinites)
+    i.sort()
+    print(i)
+
+
+    areas = Counter()
+
+    for x in range(minx, maxx):
+        for y in range(miny, maxy):
+            already = grid[(x, y)]
+            if already[2] == -1 or already[2] in infinites:
+                continue
+            areas[already[2]] += 1
+
+    return areas.most_common()[0][1]
+
+
+def part1(points):
+    minx = min(p[0] for p in points) - 1
+    maxx = max(p[0] for p in points) + 2
+    miny = min(p[1] for p in points) - 1
+    maxy = max(p[1] for p in points) + 1
+
+    # key: (x, y), value: (point that owns it, distance from point)
+    grid = {}
+    for idx, point in enumerate(points):
+        grid[tuple(point)] = (LETTERS[idx], 0, idx)
+
+    for idx, point in enumerate(points):
+        # print("=======> %d %s %s" % (idx, LETTERS[idx], point))
+        for x in range(minx, maxx):
+            for y in range(miny, maxy):
+                dist = distance(point, (x, y))
+                already = grid.get((x, y))
+                # print(x, y, already, point, dist)
+                if not already:
+                    grid[(x, y)] = (LETTERS[idx], dist, idx)
+                    # print("(%d, %d) chowned to %s dist %d" % (x, y, LETTERS[idx], dist))
+                elif already[1] == 0:
+                    # print(already)
+                    # print("(%d, %d) is point %s" % (x, y, already[0]))
+                    pass
+                elif dist < already[1]:
+                    grid[(x, y)] = (LETTERS[idx], dist, idx)
+                    # print("(%d, %d) is closer to %s than %s" %
+                    #       (x, y, idx, already[0]))
+                elif already[1] == dist:
+                    # print("(%d, %d) is equidistant from %s (%s) and %s (%d)" %
+                    #       (x, y, already[1], already[0], LETTERS[idx], dist))
+                    grid[(x, y)] = (".", already[1], -1)
+
+    return calcarea(grid, minx, maxx, miny, maxy)
+
+
+def part2(points):
+    minx = min(p[0] for p in points) - 1
+    maxx = max(p[0] for p in points) + 2
+    miny = min(p[1] for p in points) - 1
+    maxy = max(p[1] for p in points) + 1
+
+    distsum = Counter()
+    for idx, point in enumerate(points):
+        distsum[tuple(point)] = 0
+
+    for idx, point in enumerate(points):
+        # print("=======> %d %s %s" % (idx, LETTERS[idx], point))
+        for x in range(minx, maxx):
+            for y in range(miny, maxy):
+                dist = distance(point, (x, y))
+                distsum[(x, y)] += dist
+
+    return len([point for point in distsum if distsum[point] < 10000])
+
+
+if __name__ == "__main__":
+    input = [[int(x, 10) for x in line.strip().split(", ")] for line in open(join("resources", "input.txt"))]
+    print(part1(input))
+    print(part2(input))
+
+# eof
