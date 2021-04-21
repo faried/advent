@@ -1,3 +1,8 @@
+# misc
+*~
+.DS_Store
+
+# elixir
 /_build
 /cover
 /deps
@@ -8,3 +13,7 @@ erl_crash.dump
 *.beam
 /config/*.secret.exs
 .elixir_ls/
+
+# python
+*.py[co]
+__pycache__
