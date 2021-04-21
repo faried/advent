@@ -1,0 +1,59 @@
+defmodule Day04 do
+  @start 231_832
+  @stop 767_346
+
+  defp alwaysinc(number) when is_integer(number) do
+    digits = Integer.digits(number)
+
+    ret =
+      Enum.reduce_while(tl(digits), hd(digits), fn val, acc ->
+        if val < acc, do: {:halt, -1}, else: {:cont, val}
+      end)
+
+    ret > -1
+  end
+
+  defp haspairs(numcharlist, part, counter \\ %{})
+
+  defp haspairs(number, part, counter) when is_integer(number) do
+    haspairs(Integer.digits(number), part, counter)
+  end
+
+  defp haspairs([], part, counter) do
+    case part do
+      1 ->
+        Enum.any?(Map.values(counter), fn val -> val >= 2 end)
+
+      2 ->
+        Enum.any?(Map.values(counter), fn val -> val == 2 end)
+    end
+  end
+
+  defp haspairs([head | tail], part, counter) do
+    {_, counter} =
+      Map.get_and_update(counter, head, fn val ->
+        if is_nil(val), do: {val, 1}, else: {val, val + 1}
+      end)
+
+    haspairs(tail, part, counter)
+  end
+
+  def part(start, stop, _part, count) when start == stop, do: count
+
+  def part(start, stop, part, count) do
+    if alwaysinc(start) and haspairs(start, part) do
+      part(start + 1, stop, part, count + 1)
+    else
+      part(start + 1, stop, part, count)
+    end
+  end
+
+  def run() do
+    {uSecs, val} = :timer.tc(Day04, :part, [@start, @stop, 1, 0])
+    IO.puts("part1: #{val} in #{uSecs} microseconds")
+    {uSecs, val} = :timer.tc(Day04, :part, [@start, @stop, 2, 0])
+    IO.puts("part2: #{val} in #{uSecs} microseconds")
+  end
+end
+
+Day04.run()

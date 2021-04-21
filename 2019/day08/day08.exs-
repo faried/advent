@@ -1,0 +1,75 @@
+defmodule Day08 do
+
+  @width 25
+  @height 6
+
+  def extract_layers(imagedata, layers \\ []) do
+    if imagedata == "" do
+      Enum.reverse(layers)
+    else
+      {layer, rest} = String.split_at(imagedata, @width * @height)
+      extract_layers(rest, [layer | layers])
+    end
+  end
+
+  def count(layer, item) do
+    layer
+    |> String.graphemes()
+    |> Enum.reduce(0, fn x, acc -> if x == item, do: acc+1, else: acc end)
+  end
+
+  @doc """
+  L
+  """
+  def fewestzeros(layers) do
+    layeridx = layers
+    |> Enum.with_index()
+    |> Enum.map(fn {layer, index} -> {count(layer, "0"), index} end)
+    |> Enum.sort(fn {a, _}, {b, _} -> a < b end)
+    |> hd()
+    |> elem(0)
+
+    Enum.at(layers, layeridx)
+  end
+
+  def input(path) do
+    File.read!(path)
+    |> String.trim()
+  end
+
+  def part1(path \\ "/tmp/8.input") do
+    with layers <- input(path) |> extract_layers(),
+         zerolayer <- fewestzeros(layers),
+           ones <- count(zerolayer, "1"),
+           twos <- count(zerolayer, "2") do
+      ones * twos
+    end
+  end
+
+  def fillgrid([], grid), do: grid
+
+  def fillgrid([layer | layers], grid) do
+    grid = layer
+    |> String.graphemes()
+    |> Enum.zip(grid)
+    |> Enum.map(fn {pixel, gpixel} ->
+      case pixel do
+        "2" -> gpixel
+        "1" -> "#"
+        "0" -> " "
+      end
+    end)
+    fillgrid(layers, grid)
+  end
+
+  def part2(path \\ "/tmp/8.input") do
+    grid = input(path)
+    |> extract_layers()
+    |> Enum.reverse()
+    |> fillgrid(List.duplicate("2", @width * @height))
+
+    Enum.chunk_every(grid, 25)
+    |> Enum.map(&Enum.join/1)
+    |> Enum.each(&IO.puts/1)
+  end
+end
