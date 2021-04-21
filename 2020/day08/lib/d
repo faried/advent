@@ -1,0 +1,81 @@
+defmodule Day08 do
+  def readinput() do
+    File.read!("8.input.txt")
+    |> String.split("\n", trim: true)
+  end
+
+  def part1(program \\ readinput()) do
+    run(program, 0, 0)
+  end
+
+  def part2(program \\ readinput()) do
+    modify(program, 0)
+  end
+
+  def parse(line) do
+    [instruction, moveorinc] =
+      line
+      |> String.replace("+", "")
+      |> String.split()
+
+    {instruction, String.to_integer(moveorinc)}
+  end
+
+  def run(program, acc, pos, seenpos \\ MapSet.new())
+
+  def run(program, acc, pos, _seenpos) when pos >= length(program), do: {acc, true}
+
+  def run(program, acc, pos, seenpos) do
+    {instruction, moveorinc} =
+      Enum.at(program, pos)
+      |> parse()
+
+    {nextpos, newacc} =
+      case instruction do
+        "nop" -> {pos + 1, acc}
+        "acc" -> {pos + 1, acc + moveorinc}
+        "jmp" -> {pos + moveorinc, acc}
+      end
+
+    if nextpos in seenpos do
+      {acc, false}
+    else
+      run(program, newacc, nextpos, MapSet.put(seenpos, nextpos))
+    end
+  end
+
+  def modify(program, start) do
+    # find first nop or jmp after start
+    # if it's not 0, modify it
+    # run the program
+    # repeat unless it ends with {_, true}
+
+    searchprogram = Enum.slice(program, start, length(program))
+
+    changepos =
+      Enum.find_index(searchprogram, fn s ->
+        {instruction, moveorinc} = parse(s)
+        moveorinc != "0" and instruction in ["nop", "jmp"]
+      end)
+
+    {instruction, moveorinc} =
+      Enum.at(program, changepos + start)
+      |> parse()
+
+    newinstruction =
+      case instruction do
+        "jmp" -> "nop"
+        "nop" -> "jmp"
+      end
+
+    newprogram =
+      Enum.slice(program, 0, changepos + start) ++
+        ["#{newinstruction} #{moveorinc}"] ++
+        Enum.slice(program, changepos + start + 1, length(program))
+
+    case run(newprogram, 0, 0) do
+      {acc, true} -> acc
+      {_, false} -> modify(program, changepos + start + 1)
+    end
+  end
+end

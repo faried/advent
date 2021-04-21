@@ -1,0 +1,5 @@
+%{
+  "comb": {:git, "https://github.com/tallakt/comb.git", "e6660924891d88d798494ab0c5adeefb29fae8b8", [tag: "master"]},
+  "combination": {:hex, :combination, "0.0.3", "746aedca63d833293ec6e835aa1f34974868829b1486b1e1cb0685f0b2ae1f41", [:mix], [], "hexpm", "72b099f463df42ef7dc6371d250c7070b57b6c5902853f69deb894f79eda18ca"},
+  "math_combinations": {:hex, :math_combinations, "0.2.0", "3cea7255cf76790e737b76d0235c8513909c1b384aa7d30461f2a49b9f9cd605", [:mix], [], "hexpm", "116c28bdcaeaa1098ac81bfd3db7968bd4ec8aaaa106a4f930306d9553894839"},
+}
