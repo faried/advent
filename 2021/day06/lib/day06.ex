@@ -14,8 +14,8 @@ defmodule Day06 do
     Enum.reduce(fish, %{}, fn {f, count}, newfish ->
       case f do
         0 ->
-          Map.update(newfish, 8, count, fn e -> e + count end)
-          |> Map.update(6, count, fn e -> e + count end)
+          Map.put(newfish, 8, count)
+          |> Map.put(6, count)
 
         _ ->
           Map.update(newfish, f - 1, count, fn e -> e + count end)
