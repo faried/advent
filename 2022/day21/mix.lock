@@ -1,0 +1,3 @@
+%{
+  "solver": {:hex, :solver, "0.1.0", "18a75b6c4eedf0125e7f3b5eab356d66d9e55aadea93ec23eeabca93c3c4feaf", [:mix], [], "hexpm", "f81d0bbbdee07f172d5dffe2bc60d4abca6a8e67be8cc9860772a99939b61d67"},
+}
